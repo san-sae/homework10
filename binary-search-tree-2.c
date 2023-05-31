@@ -189,226 +189,229 @@ int insert(Node* head, int key){
 	newNode->right = NULL; // 오른쪽 자식 노드
 
 	if (head->left == NULL) { // BST가 비어있을 경우
-		head->left = newNode; // 
+		head->left = newNode; // BST의 루트노드
 		return 1;
 	}
 
 	/* head->left is the root */
-	Node* ptr = head->left;
+	// BST가 비어 있지 않을 경우
+	Node* ptr = head->left; // ptr이 BST의 루트노드가 되도록 설정
 
-	Node* parentNode = NULL;
-	while(ptr != NULL) {
+	Node* parentNode = NULL; // 부모 노드에 대한 포인터
+	while(ptr != NULL) { // ptr이 비어있지 않을 경우
 
 		/* if there is a node for the key, then just return */
+		// 입력한 값과 동일한 키값을 가진 노드가 존재할 경우 함수 종료
 		if(ptr->key == key) return 1;
 
 		/* we have to move onto children nodes,
 		 * keep tracking the parent using parentNode */
-		parentNode = ptr;
+		parentNode = ptr; // 현재 노드를 부모노드로 설정
 
 		/* key comparison, if current node's key is greater than input key
 		 * then the new node has to be inserted into the right subtree;
-		 * otherwise the left subtree.
-		 */
-		if(ptr->key < key)
-			ptr = ptr->right;
-		else
-			ptr = ptr->left;
+		 * otherwise the left subtree.*/
+		if(ptr->key < key) // 현재노드의 키값보다 입력값이 큰 경우
+			ptr = ptr->right; // 오른쪽 자식노드로 이동
+		else // 현재노드의 키값보다 입력값이 작은 경우
+			ptr = ptr->left; // 왼쪽 자식노드로 이동
 	}
 
 	/* linking the new node to the parent */
-	if(parentNode->key > key)
-		parentNode->left = newNode;
-	else
-		parentNode->right = newNode;
+	// 노드 삽입
+	if(parentNode->key > key) // 부모노드의 키값이 입력된 키값보다 큰 경우
+		parentNode->left = newNode; // 부모노드의 왼쪽 자식노드에 삽입
+	else // 부모노드의 키값이 입력된 키값보다 작은 경우
+		parentNode->right = newNode; // 부모노드의 오른쪽 자식노드에 삽입
     
 	return 1;
 }
 
-
+// 입력한 키값을 가진 노드 삭제하는 함수
 int deleteNode(Node* head, int key){
 
-	if (head == NULL) {
+	if (head == NULL) { // 헤드노드에 대한 동적할당이 되지 않은 경우
 		printf("\n Nothing to delete!!\n");
 		return -1;
 	}
 
-	if (head->left == NULL) {
+	if (head->left == NULL) { // BST에 노드가 존재하지 않는 경우
 		printf("\n Nothing to delete!!\n");
 		return -1;
 	}
 
 	/* head->left is the root */
-	Node* root = head->left;
+	Node* root = head->left; // 헤드노드의 왼쪽 자식노드를 루트노드로 설정
 
-	Node* parent = NULL;
-	Node* ptr = root;
+	Node* parent = NULL; // 부모노드는 NULL로 초기화
+	Node* ptr = root; // 현재노드(삭제할 노드)를 루트노드로 설정
 
-	while((ptr != NULL)&&(ptr->key != key)) {
-		if(ptr->key != key) {
+	while((ptr != NULL)&&(ptr->key != key)) { // 현재노드가 존재하고 현재노드의 키값과 입력된 키값이 일치하지 않는 경우
+		if(ptr->key != key) { // 현재 노드의 키값이 입력된 키값과 일치하지 않을 경우
 
 			parent = ptr;	/* save the parent */
 
-			if(ptr->key > key)
-				ptr = ptr->left;
-			else
-				ptr = ptr->right;
+			if(ptr->key > key) // 현재노드의 키값이 입력된 키값보다 큰 경우
+				ptr = ptr->left; // 왼쪽 자식노드로 이동
+			else // 현재노드의 키값이 입력된 키값보다 작은 경우
+				ptr = ptr->right; // 오른쪽 자식노드로 이동
 		}
 	}
 
 	/* there is no node for the key */
-	if(ptr == NULL){
+	if(ptr == NULL){ // 키값과 일치하는 노드를 찾지 못한 경우
 		printf("No node for key [%d]\n ", key);
 		return -1;
 	}
 
-	/*
-	 * case 1: the node which has to be removed is a leaf node
-	 */
+	// case 1: the node which has to be removed is a leaf node
+	// 삭제할 노드(현재노드)가 리프노드인 경우	
 	if(ptr->left == NULL && ptr->right == NULL){
-
+		// 부모노드가 존재하는 경우
 		if(parent != NULL) { /* parent exists, parent's left and right links are adjusted */
-			if(parent->left == ptr)
-				parent->left = NULL;
-			else
-				parent->right = NULL;
+			if(parent->left == ptr) // 부모노드의 왼쪽 자식노드가 현재노드(삭제할 노드)와 일치하는 경우
+				parent->left = NULL; // 부모노드의 왼쪽 자식노드 삭제
+			else // 부모노드의 오른쪽 자식노드가 현재노드(삭제할 노드)와 일치할 경우
+				parent->right = NULL; // 부모노드의 오른쪽 자식노드 삭제
 		} 
-        else {
+        else { // 부모 노드가 존재하지 않는 경우(삭제할 노드가 루트노드인 경우)
 			/* parent is null, which means the node to be deleted is the root */
-			head->left = NULL;
-
+			head->left = NULL; // 루트노드 초기화
 		}
 
-		free(ptr);
+		free(ptr); // 삭제할 노드에 대한 동적할당 해제
 		return 1;
 	}
 
-	/**
-	 * case 2: if the node to be deleted has one child
-	 */
+	// case 2: if the node to be deleted has one child
+	// 삭제할 노드가 하나의 자식을 갖는 경우
 	if ((ptr->left == NULL || ptr->right == NULL)){
 
-		Node* child;
-		if (ptr->left != NULL)
-			child = ptr->left;
-		else
-			child = ptr->right;
+		Node* child; // 자식 노드를 저장할 변수
+		if (ptr->left != NULL) // 삭제할 노드의 왼쪽 자식노드가 존재하는 경우
+			child = ptr->left; // 왼쪽 자식노드를 child에 저장
+		else // 삭제할 노드의 오른쪽 자식노드가 존재하는 경우
+			child = ptr->right; // 오른쪽 자식노드를 child에 저장
 
-		if(parent != NULL){
-			if(parent->left == ptr)
-				parent->left = child;
-			else
-				parent->right = child;
+		if(parent != NULL){ // 부모노드가 존재하는 경우
+			if(parent->left == ptr) // 삭제할 노드가 부모노드의 왼쪽 자식노드인 경우
+				parent->left = child; // 부모노드의 왼쪽 자식노드를 child으로 설정
+			else // 삭제할 노드가 부모노드의 오른쪽 자식노드인 경우
+				parent->right = child; // 부모노드의 오른쪽 자식노드를 child으로 설정
 		}
-        else {
+        else { // 부모노드가 비어있는 경우(삭제할 노드가 루트노드인 경우)
 			/* parent is null, which means the node to be deleted is the root
 			 * and the root has one child. Therefore, the child should be the root
 			 */
-			root = child;
+			root = child; // 루트노드를 child로 설정
 		}
 
-		free(ptr);
+		free(ptr); // 삭제할 노드의 동적할당 해제
 		return 1;
 	}
 
-	/**
-	 * case 3: the node (ptr) has two children
+	/*case 3: the node (ptr) has two children
 	 *
 	 * we have to find either the biggest descendant node in the left subtree of the ptr
 	 * or the smallest descendant in the right subtree of the ptr.
 	 *
-	 * we will find the smallest descendant from the right subtree of the ptr.
-	 *
-	 */
+	 * we will find the smallest descendant from the right subtree of the ptr.*/
+	// 삭제할 노드가 양쪽 모두에 자식을 갖는 경우
+	Node* candidate; // 후보노드
+	parent = ptr; // 부모노드를 현재노드로 설정
 
-	Node* candidate;
-	parent = ptr;
-
-	candidate = ptr->right;
+	candidate = ptr->right; // 후보노드를 현재노드의 오른쪽 자식노드를 저장
 
 	/* the smallest node is left deepest node in the right subtree of the ptr */
-	while(candidate->left != NULL){
-		parent = candidate;
-		candidate = candidate->left;
+	while(candidate->left != NULL){ // 후보노드의 왼쪽 자식노드가 존재하는 경우
+		parent = candidate; // 부모노드를 후보노드로 설정
+		candidate = candidate->left; // 후보노드의 왼쪽 자식노드로 이동
 	}
 
 	/* the candidate node is the right node which has to be deleted.
-	 * note that candidate's left is null
-	 */
-	if (parent->right == candidate)
-		parent->right = candidate->right;
-	else
-		parent->left = candidate->right;
+	 * note that candidate's left is null */
+	if (parent->right == candidate) // 후보노드가 부모노드의 오른쪽 자식노드인 경우
+		parent->right = candidate->right; // 후보노드의 오른쪽 자식노드를 부모노드의 오른쪽 자식노드로 설정
+	else // 후보노드가 부모노드의 왼쪽 자식노드인 경우
+		parent->left = candidate->right; // 후보노드의 오른쪽 자식노드를 부모노드의 왼쪽 자식노드로 설정
 
 	/* instead of removing ptr, we just change the key of ptr
-	 * with the key of candidate node and remove the candidate node
-	 */
+	 * with the key of candidate node and remove the candidate node */
 
-	ptr->key = candidate->key;
+	ptr->key = candidate->key; // 후보노드의 키값을 현재노드의 키값으로 설정
 
-	free(candidate);
+	free(candidate); // 후보노드에 대한 동적할당 해제
 	return 1;
 }
 
-
+// 재귀방식으로 BST의 모든 노드에 대한 메모리 해제하는 함수
 void freeNode(Node* ptr){
 
-	if(ptr) {
-		freeNode(ptr->left);
-		freeNode(ptr->right);
-		free(ptr);
+	if(ptr) { // 현재노드가 비어져 있지 않는 경우
+		freeNode(ptr->left); // 재귀방식으로 왼쪽 서브트리에 대한 동적할당 해제
+		freeNode(ptr->right); // 재귀방식으로 오른쪽 서브트리에 대한 동적할당 해제
+		free(ptr); // 현재노드에 대한 동적할당 해제
 	}
 }
 
+// BST의 메모리 해제하는 함수
 int freeBST(Node* head){
 
-	if(head->left == head){
-		free(head);
+	if(head->left == head){ // BST가 노드를 가지고 있지 않는 경우
+		free(head); // 헤드노드에 대한 동적할당 해제
 		return 1;
 	}
 
-	Node* p = head->left;
+	// BST가 노드를 가지고 있는 경우
+	Node* p = head->left; // 현재노드를 루트노드로 설정
 
-	freeNode(p);
+	freeNode(p); // 트리의 모든 노드 해제하는 함수 호출
 
-	free(head);
+	free(head); // 헤드노드에 대한 동적할당 해제
 	return 1;
 }
 
+// 스택의 top을 pop하는 함수
 Node* pop(){
-	if (top < 0) return NULL;
-	return stack[top--];
+	if (top < 0) return NULL; // 스택이 비어있을 경우, NULL 반환
+	
+	// 스택이 비어있지 않을 경우 
+	return stack[top--]; // 스택의 탑을 pop, pop한 결과를 top에 적용
 }
 
+// 스택에 push하는 함수
 void push(Node* aNode){
-	stack[++top] = aNode;
+	stack[++top] = aNode; // push하기 위해 top을 조정한 뒤, 스택에 노드를 push
 }
 
+// 스택의 원소를 출력하는 함수
 void printStack(){
 	int i = 0;
 	printf("--- stack ---\n");
-	while(i <= top){
+	while(i <= top){ // 스택의 노드에 대한 반복
 		printf("stack[%d] = %d\n", i, stack[i]->key);
 	}
 }
 
+// 큐에서 데이터를 삭제하는 함수
 Node* deQueue(){
-	if (front == rear) {
+	if (front == rear) { // 큐가 비어있는 경우
 		// printf("\n....Now Queue is empty!!\n" );
-		return NULL;
+		return NULL; // NULL 반환
 	}
-
-	front = (front + 1) % MAX_QUEUE_SIZE;
-	return queue[front];
+	// 큐가 비어있지 않을 경우
+	front = (front + 1) % MAX_QUEUE_SIZE; // 모듈러 연산을 통한 front 계산
+	return queue[front]; // 첫번째 원소 pop하여 반환
 }
 
-void enQueue(Node* aNode){
+// 큐에 데이터를 삽입하는 함수
+void enQueue(Node* aNode){ 
     
-	rear = (rear + 1) % MAX_QUEUE_SIZE;
-	if (front == rear) {
+	rear = (rear + 1) % MAX_QUEUE_SIZE; // 모듈러 연산을 통한 rear 계산
+	if (front == rear) { // 큐가 가득 차 있는 경우
 		// printf("\n....Now Queue is full!!\n");
-		return;
+		return; // 함수 종료
 	}
-
-	queue[rear] = aNode;
+	// 큐가 가득 차 있지 않는 경우
+	queue[rear] = aNode; // 큐에 노드를 push
 }
